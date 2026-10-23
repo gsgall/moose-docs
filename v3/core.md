@@ -179,6 +179,8 @@ this is a list it also follows the aforementioned rules for list continuation.
     - B.2.1
     - B.2.2
 
+- C
+
   - B.3
 
     - B.3.1

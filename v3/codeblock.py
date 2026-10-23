@@ -1,5 +1,4 @@
 import re
-import token
 import unittest
 from enum import Enum
 
@@ -20,15 +19,14 @@ def process(buffer: str, index_char: int) -> tuple[str, int, list[Token]]:
     if match is None or match.start() != 3:
         return buffer, index_char, []
 
-    index_newline = buffer[index_char::-1].find("\n")
-
+    index_newline = buffer.rfind("\n", 0, index_char)
     if (
-        len(buffer[index_char - index_newline : index_char]) > 0
-        and not buffer[index_char - index_newline : index_char].isspace()
+        index_char - index_newline > 0
+        and not buffer[index_newline:index_char].isspace()
     ):
         return buffer, index_char, []
 
-    index_code_block_end = index_char + 3 + buffer[index_char + 3 :].find("```")
+    index_code_block_end = buffer.find("```", index_char + 3)
 
     assert index_code_block_end != -1
     len_buffer = len(buffer)

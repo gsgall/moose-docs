@@ -2,8 +2,11 @@ import re
 import time
 
 import codeblock
+import extension
 import heading
+import list
 import quote
+import table
 from my_token import EnumCentinal, Token
 
 with open("core.md", "r") as f:
@@ -14,10 +17,13 @@ function_list = [
     heading.process,
     codeblock.process,
     quote.process,
+    extension.process,
+    table.process,
+    list.process,
 ]
 
 
-buffer_search = "#`>"
+buffer_search = "#`>!|-"
 
 pattern = re.compile("[" + re.escape(buffer_search) + "]")
 index_current_char = 0
@@ -26,14 +32,12 @@ time_start = time.time()
 
 list_of_tokens = []
 while index_current_char < len(content_file):
-    # print("Iteration")
-    # print(f"{file_content[index_current_char]!r} : {index_current_char}")
-    match = pattern.search(content_file[index_current_char:])
+    match = pattern.search(content_file, pos=index_current_char)
 
     if match is None:
         break
 
-    index_char_matched = index_current_char + match.start()
+    index_char_matched = match.start()
 
     char_found = content_file[index_char_matched]
     index_delim = buffer_search.find(char_found)
@@ -74,7 +78,7 @@ list_of_tokens.append(
 time_end = time.time()
 
 for token in list_of_tokens:
-    print(f"{token} : {content_file[token.index_start : token.index_end + 1]!r}")
+    print(f"{token} : {content_file[token.index_start : token.index_end + 30]!r}")
 
 
 print(f"Execution Time For 10k files: {(time_end - time_start) * 10e3:.3f} s")
@@ -102,6 +106,10 @@ start_enums = {
     heading.EnumHeadingStart.Sext: heading.start,
     codeblock.EnumCodeBlock.Start: codeblock.start,
     quote.EnumQuote.Start: quote.start,
+    extension.EnumAlert.Start: extension.start,
+    extension.EnumDevel.Start: extension.start,
+    table.EnumTable.Start: table.start,
+    list.EnumUnorderedList.Start: list.start,
 }
 
 end_enums = {
@@ -114,6 +122,10 @@ end_enums = {
     heading.EnumHeadingEnd.Sext: heading.end,
     codeblock.EnumCodeBlock.End: codeblock.end,
     quote.EnumQuote.End: quote.end,
+    extension.EnumAlert.End: extension.end,
+    extension.EnumDevel.End: extension.end,
+    table.EnumTable.End: extension.end,
+    list.EnumUnorderedList.End: list.end,
 }
 
 enum_pairs = {
@@ -126,6 +138,10 @@ enum_pairs = {
     heading.EnumHeadingEnd.Sext: heading.EnumHeadingStart.Sext,
     codeblock.EnumCodeBlock.End: codeblock.EnumCodeBlock.Start,
     quote.EnumQuote.End: quote.EnumQuote.Start,
+    extension.EnumAlert.End: extension.EnumAlert.Start,
+    extension.EnumDevel.End: extension.EnumDevel.Start,
+    table.EnumTable.End: table.EnumTable.Start,
+    list.EnumUnorderedList.End: list.EnumUnorderedList.Start,
 }
 
 index_token = 0

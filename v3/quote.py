@@ -14,18 +14,18 @@ def process(buffer: str, index_char: int) -> tuple[str, int, list[Token]]:
     if buffer[index_char + 1] != " ":
         return buffer, index_char, []
 
-    indent_depth = buffer[index_char::-1].find("\n") - 1
+    indent_depth = index_char - buffer.rfind("\n", 0, index_char) - 1
     # This would occur when it is the first line
     if indent_depth < 0:
         indent_depth = index_char
 
-    index_paragraph_break = buffer[index_char - indent_depth :].find("\n\n")
+    index_paragraph_break = buffer.find("\n\n", index_char - indent_depth)
 
     if index_paragraph_break == -1:
         index_paragraph_break = len(buffer) - 1
 
-    lines_quote = buffer[index_char - indent_depth :][:index_paragraph_break].split(
-        "\n"
+    lines_quote = buffer[index_char - indent_depth : index_paragraph_break].splitlines(
+        True
     )
     edited_buffer = ""
 
@@ -33,17 +33,17 @@ def process(buffer: str, index_char: int) -> tuple[str, int, list[Token]]:
         indent_depth_current_line = line.find(">")
 
         if indent_depth_current_line == -1:
-            edited_buffer += line + "\n"
+            edited_buffer += line
             continue
 
         if indent_depth_current_line == indent_depth:
-            edited_buffer += line.replace(">", " ", 1) + "\n"
+            edited_buffer += line.replace(">", " ", 1)
 
     len_buffer = len(buffer)
     buffer = (
         buffer[: index_char - indent_depth]
         + edited_buffer
-        + buffer[index_char - indent_depth + index_paragraph_break + 1 :]
+        + buffer[index_paragraph_break:]
     )
     assert len(buffer) == len_buffer
 
@@ -59,8 +59,8 @@ def process(buffer: str, index_char: int) -> tuple[str, int, list[Token]]:
             ),
             Token(
                 enum=EnumQuote.End,
-                index_start=index_char - indent_depth + index_paragraph_break,
-                index_end=index_char - indent_depth + index_paragraph_break + 1,
+                index_start=index_paragraph_break,
+                index_end=index_paragraph_break + 1,
                 index_indent=indent_depth,
             ),
         ],
@@ -162,7 +162,6 @@ class TestQuote(unittest.TestCase):
 
         buffer_updated, index_block_start_end, token_list = process(input, index_quote)
 
-        self.maxDiff = None
         self.assertEqual(2, len(token_list))
         self.assertEqual(index_quote + 1, index_block_start_end)
         self.assertEqual(expected_update, buffer_updated)

@@ -1,3 +1,4 @@
+import re
 from enum import Enum
 
 from my_token import Token
@@ -26,37 +27,39 @@ EnumHeadingEnd = Enum(
     ],
 )
 
+pattern = re.compile(r"[^#]")
+
 
 def process(buffer: str, index_char: int) -> tuple[str, int, list[Token]]:
-    if index_char == 1 and buffer[0] != "\n":
+
+    match = pattern.search(buffer, pos=index_char)
+    if match == None:
         return buffer, index_char, []
 
-    index_end_of_heading_marker = buffer[index_char:].find(" ")
+    index_end_of_heading_marker = match.start()
 
-    if index_end_of_heading_marker == -1:
+    if buffer[index_end_of_heading_marker] != " ":
         return buffer, index_char, []
 
-    if index_end_of_heading_marker > 6:
+    pound_count = index_end_of_heading_marker - index_char
+
+    if pound_count > 6:
         return buffer, index_char, []
 
-    index_paragraph_break = (
-        index_char
-        + index_end_of_heading_marker
-        + buffer[index_char + index_end_of_heading_marker :].find("\n\n")
-    )
+    index_paragraph_break = buffer.find("\n\n", index_end_of_heading_marker)
 
     return (
         buffer,
-        index_char + index_end_of_heading_marker,
+        index_end_of_heading_marker + 1,
         [
             Token(
-                enum=EnumHeadingStart(index_end_of_heading_marker),
+                enum=EnumHeadingStart(pound_count),
                 index_start=index_char,
-                index_end=index_char + index_end_of_heading_marker,
+                index_end=index_end_of_heading_marker,
                 index_indent=0,
             ),
             Token(
-                enum=EnumHeadingEnd(index_end_of_heading_marker),
+                enum=EnumHeadingEnd(pound_count),
                 index_start=index_paragraph_break,
                 index_end=index_paragraph_break + 1,
                 index_indent=0,

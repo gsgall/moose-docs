@@ -32,12 +32,6 @@ EnumSubScript = Enum(
 )
 
 
-test = "Yo, dawg I heard you like formatting, so I created =underline"
-test += "formatted text that contains text with ~strikethrough that"
-test += "contains +bold formatting with *emphasis that has some^superscript"
-test += "text with a@subscript@^*+~=, I hope you like it."
-
-
 def processGeneral(
     buffer: str,
     index_char: int,

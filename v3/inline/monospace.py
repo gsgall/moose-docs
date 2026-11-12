@@ -18,12 +18,12 @@ EnumMonoSpace = Enum(
 def process(
     buffer: str,
     index_char: int,
-) -> tuple[str, int, list[Token]]:
+) -> tuple[int, list[Token]]:
 
     index_next_back_tick = buffer.find("`", index_char + 1)
 
     if index_next_back_tick == -1:
-        return buffer, index_char, []
+        return index_char, []
 
     assert index_next_back_tick > index_char
 
@@ -31,12 +31,11 @@ def process(
         index_next_back_tick = buffer.find("`", index_next_back_tick + 1)
 
         if index_next_back_tick == -1:
-            return buffer, index_char, []
+            return index_char, []
 
     assert index_next_back_tick - index_char > 1
 
     return (
-        buffer,
         index_char + 1,
         [
             Token(
@@ -59,7 +58,7 @@ class MonoSpaceTests(unittest.TestCase):
     def testInvalid(self):
         input = "The following MooseDocs `[google] will show verbatim because it"
 
-        buffer_updated, index_block_start_end, token_list = process(
+        index_end, token_list = process(
             input,
             input.find("`"),
         )
@@ -69,7 +68,7 @@ class MonoSpaceTests(unittest.TestCase):
     def testValid(self):
         input = "The following MooseDocs `[google]` will show verbatim because it"
 
-        buffer_updated, index_block_start_end, token_list = process(
+        index_end, token_list = process(
             input,
             input.find("`"),
         )
@@ -85,7 +84,7 @@ class MonoSpaceTests(unittest.TestCase):
     def testTripleBackTick(self):
         input = "display in triple back-ticks (```), this is commonly referred to as fenced code blocks. Two"
 
-        buffer_updated, index_block_start_end, token_list = process(
+        index_end, token_list = process(
             input,
             input.find("`"),
         )

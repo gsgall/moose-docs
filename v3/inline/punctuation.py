@@ -18,14 +18,13 @@ EnumPunctation = Enum(
 def process(
     buffer: str,
     index_char: int,
-) -> tuple[str, int, list[Token]]:
+) -> tuple[int, list[Token]]:
 
     if index_char == len(buffer):
-        return buffer, index_char, []
+        return index_char, []
 
     if buffer.startswith("---", index_char):
         return (
-            buffer,
             index_char + 2,
             [
                 Token(
@@ -39,7 +38,6 @@ def process(
 
     if buffer.startswith("--", index_char):
         return (
-            buffer,
             index_char + 1,
             [
                 Token(
@@ -51,14 +49,14 @@ def process(
             ],
         )
 
-    return buffer, index_char, []
+    return index_char, []
 
 
 class TestPunctuation(unittest.TestCase):
     def testEmDash(self):
         input = "1. An empty line followed by a non-list marker---everything except a hyphen---will stop the"
 
-        buffer_updated, index_block_start_end, token_list = process(
+        index_end, token_list = process(
             input,
             input.find("---"),
         )
@@ -71,7 +69,7 @@ class TestPunctuation(unittest.TestCase):
     def testEnDash(self):
         input = "1. An empty line followed by a non-list marker--everything except a hyphen--will stop the"
 
-        buffer_updated, index_block_start_end, token_list = process(
+        index_end, token_list = process(
             input,
             input.find("--"),
         )
@@ -84,7 +82,7 @@ class TestPunctuation(unittest.TestCase):
     def testHyphen(self):
         input = "1. An empty line followed by a non-list marker--everything except a hyphen--will stop the"
 
-        buffer_updated, index_block_start_end, token_list = process(
+        index_end, token_list = process(
             input,
             input.find("-"),
         )

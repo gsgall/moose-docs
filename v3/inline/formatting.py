@@ -38,28 +38,27 @@ def processGeneral(
     delimiter_char: str,
     enum_start: Enum,
     enum_end: Enum,
-) -> tuple[str, int, list[Token]]:
+) -> tuple[int, list[Token]]:
 
     assert len(delimiter_char) == 1
 
     if buffer[index_char + 1].isspace():
-        return buffer, index_char, []
+        return index_char, []
 
     if index_char != 0 and not buffer[index_char - 1].isspace():
-        return buffer, index_char, []
+        return index_char, []
 
     index_pattern_end = buffer.find(delimiter_char, index_char + 1)
 
     if index_pattern_end == -1:
-        return buffer, index_char, []
+        return index_char, []
 
     assert index_pattern_end > index_char
 
     if buffer[index_pattern_end - 1].isspace():
-        return buffer, index_char, []
+        return index_char, []
 
     return (
-        buffer,
         index_char + 1,
         [
             Token(
@@ -84,28 +83,27 @@ def processSuperSub(
     delimiter_char: str,
     enum_start: Enum,
     enum_end: Enum,
-) -> tuple[str, int, list[Token]]:
+) -> tuple[int, list[Token]]:
 
     assert len(delimiter_char) == 1
 
     if buffer[index_char + 1].isspace():
-        return buffer, index_char, []
+        return index_char, []
 
     if index_char != 0 and buffer[index_char - 1].isspace():
-        return buffer, index_char, []
+        return index_char, []
 
     index_pattern_end = buffer.find(delimiter_char, index_char + 1)
 
     if index_pattern_end == -1:
-        return buffer, index_char, []
+        return index_char, []
 
     assert index_pattern_end > index_char
 
     if buffer[index_pattern_end - 1].isspace():
-        return buffer, index_char, []
+        return index_char, []
 
     return (
-        buffer,
         index_char + 1,
         [
             Token(
@@ -128,7 +126,7 @@ class UnderlineTests(unittest.TestCase):
     def testInvalid(self):
         input = "Yo, dawg I heard you like formatting, so I created =underline"
 
-        buffer_updated, index_block_start_end, token_list = processGeneral(
+        index_end, token_list = processGeneral(
             input,
             input.find("="),
             "=",
@@ -140,7 +138,7 @@ class UnderlineTests(unittest.TestCase):
     def testValid(self):
         input = "Yo, dawg I heard you like formatting, so I created =underline="
 
-        buffer_updated, index_block_start_end, token_list = processGeneral(
+        index_end, token_list = processGeneral(
             input,
             input.find("="),
             "=",
@@ -162,7 +160,7 @@ class UnderlineTests(unittest.TestCase):
         input += "contains +bold formatting with *emphasis that has some^superscript"
         input += "text with a@subscript@^*+~=, I hope you like it."
 
-        buffer_updated, index_block_start_end, token_list = processGeneral(
+        index_end, token_list = processGeneral(
             input,
             input.find("="),
             "=",
@@ -177,7 +175,7 @@ class SuperScriptTests(unittest.TestCase):
     def testInvalid(self):
         input = "Yo, dawg I heard you like formatting, so I created ^underline"
 
-        buffer_updated, index_block_start_end, token_list = processSuperSub(
+        index_end, token_list = processSuperSub(
             input,
             input.find("^"),
             "^",
@@ -189,7 +187,7 @@ class SuperScriptTests(unittest.TestCase):
     def testValid(self):
         input = "Yo, dawg I heard you like formatting, so I created^superscript^"
 
-        buffer_updated, index_block_start_end, token_list = processSuperSub(
+        index_end, token_list = processSuperSub(
             input,
             input.find("^"),
             "^",
@@ -211,7 +209,7 @@ class SuperScriptTests(unittest.TestCase):
         input += "contains +bold formatting with *emphasis that has some^superscript"
         input += "text with a@subscript@^*+~=, I hope you like it."
 
-        buffer_updated, index_block_start_end, token_list = processSuperSub(
+        index_end, token_list = processSuperSub(
             input,
             input.find("^"),
             "^",

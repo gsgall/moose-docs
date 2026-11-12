@@ -39,14 +39,13 @@ enumMap = {
 def process(
     buffer: str,
     index_char: int,
-) -> tuple[str, int, list[Token]]:
+) -> tuple[int, list[Token]]:
 
     if index_char == len(buffer) - 1:
-        return buffer, index_char, []
+        return index_char, []
 
     try:
         return (
-            buffer,
             index_char + 1,
             [
                 Token(
@@ -58,7 +57,7 @@ def process(
             ],
         )
     except KeyError:
-        return buffer, index_char, []
+        return index_char, []
 
 
 class TestPunctuation(unittest.TestCase):
@@ -69,7 +68,7 @@ class TestPunctuation(unittest.TestCase):
         for char in chars:
             input = f"This is a test that has a \\{char} in it"
 
-            buffer_updated, index_block_start_end, token_list = process(
+            index_end, token_list = process(
                 input,
                 input.find("\\"),
             )

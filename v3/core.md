@@ -21,7 +21,7 @@ In general, most block level syntax and some inline syntax accepts key-value pai
 the settings appear within the syntax varies and is detailed in the following sections.
 [settings-example] show how the settings are specified in [#links].
 However, the settings are applied in a uniform manner. Foremost, the key and value are separated by
-an equal ( `=` ) sign +without spaces+ surrounding. The value may contain spaces, with the space after
+an equal (`=`) sign +without spaces+ surrounding. The value may contain spaces, with the space after
 the equal sign being the exception.
 
 If syntax has settings then the key-value pairs, the default value (if any), and a short description
@@ -68,7 +68,7 @@ must also begin with a `>` character. Within the quotations any valid markdown i
 as shown in [quote-nested-example].
 
 !devel example caption=Basic block quote. id=quote-example
- This is a quotation.
+> This is a quotation.
 
 !devel example caption=Nested content in block quotes. id=quote-nested-example
 > Quotations begin with the `>` character and may
@@ -178,8 +178,6 @@ this is a list it also follows the aforementioned rules for list continuation.
 
     - B.2.1
     - B.2.2
-
-- C
 
   - B.3
 
